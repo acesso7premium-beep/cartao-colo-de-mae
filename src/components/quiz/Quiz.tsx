@@ -6,10 +6,11 @@ const STORAGE_KEY = "colo-de-mae-quiz";
 
 interface Props {
   wantsCard: boolean | null;
+  contact?: { email: string; whatsapp: string } | null;
   onFinish: () => void;
 }
 
-export function Quiz({ wantsCard, onFinish }: Props) {
+export function Quiz({ wantsCard, contact, onFinish }: Props) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +54,17 @@ export function Quiz({ wantsCard, onFinish }: Props) {
       }
     }
     if (isLast) {
-      localStorage.setItem(
-        STORAGE_KEY + "-final",
-        JSON.stringify({ wantsCard, answers, submittedAt: new Date().toISOString() })
-      );
+      const submission = {
+        wantsCard,
+        contact: contact || null,
+        answers,
+        submittedAt: new Date().toISOString(),
+      };
+      const listKey = "colo-de-mae-respostas";
+      const list = JSON.parse(localStorage.getItem(listKey) || "[]");
+      list.push(submission);
+      localStorage.setItem(listKey, JSON.stringify(list));
+      localStorage.setItem(STORAGE_KEY + "-final", JSON.stringify(submission));
       localStorage.removeItem(STORAGE_KEY);
       onFinish();
     } else {
