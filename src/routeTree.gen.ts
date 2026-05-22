@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RespostasRouteImport } from './routes/respostas'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CartaoTokenRouteImport } from './routes/cartao.$token'
 
 const RespostasRoute = RespostasRouteImport.update({
   id: '/respostas',
@@ -28,35 +29,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CartaoTokenRoute = CartaoTokenRouteImport.update({
+  id: '/cartao/$token',
+  path: '/cartao/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/respostas': typeof RespostasRoute
+  '/cartao/$token': typeof CartaoTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/respostas': typeof RespostasRoute
+  '/cartao/$token': typeof CartaoTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/respostas': typeof RespostasRoute
+  '/cartao/$token': typeof CartaoTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/respostas'
+  fullPaths: '/' | '/admin' | '/respostas' | '/cartao/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/respostas'
-  id: '__root__' | '/' | '/admin' | '/respostas'
+  to: '/' | '/admin' | '/respostas' | '/cartao/$token'
+  id: '__root__' | '/' | '/admin' | '/respostas' | '/cartao/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   RespostasRoute: typeof RespostasRoute
+  CartaoTokenRoute: typeof CartaoTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cartao/$token': {
+      id: '/cartao/$token'
+      path: '/cartao/$token'
+      fullPath: '/cartao/$token'
+      preLoaderRoute: typeof CartaoTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   RespostasRoute: RespostasRoute,
+  CartaoTokenRoute: CartaoTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
