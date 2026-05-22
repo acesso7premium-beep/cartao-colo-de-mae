@@ -43,6 +43,18 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
   const [saved, setSaved] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const shareToken = useMemo(() => {
+    const rnd = Math.random().toString(36).slice(2, 8).toUpperCase();
+    return `${code}-${rnd}`;
+  }, [code]);
+
+  const shareUrl = useMemo(() => {
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : "https://cartao-colo-de-mae.lovable.app";
+    return `${origin}/cartao/${shareToken}`;
+  }, [shareToken]);
 
   const fileContent = useMemo(
     () =>
@@ -51,8 +63,9 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
       `Palavra secreta: ${word}\n` +
       `Frase secreta: ${phrase}\n` +
       `Código único: ${code}\n\n` +
+      `Link exclusivo do seu cartão:\n${shareUrl}\n\n` +
       `⚠️ Guarde estas informações em local seguro. Elas servirão para recuperar e proteger o acesso ao seu Cartão Colo de Mãe.\n`,
-    [word, phrase, code]
+    [word, phrase, code, shareUrl]
   );
 
   if (!open) return null;
@@ -75,6 +88,29 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
     try {
       await navigator.clipboard.writeText(code);
     } catch {}
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch {}
+  };
+
+  const shareLink = async () => {
+    const shareData = {
+      title: "Meu Cartão Colo de Mãe",
+      text: "Esse é o meu link exclusivo do Cartão Colo de Mãe 💙",
+      url: shareUrl,
+    };
+    if (typeof navigator !== "undefined" && (navigator as any).share) {
+      try {
+        await (navigator as any).share(shareData);
+        return;
+      } catch {}
+    }
+    copyLink();
   };
 
   const submit = () => {
@@ -198,6 +234,39 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
               />
               Já anotei meu código em um lugar seguro.
             </label>
+          </div>
+
+          <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-base font-semibold">
+              🔗 Seu link exclusivo do Cartão
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Use este link para acessar e compartilhar seu Cartão Colo de Mãe. Ele é único e pessoal — guarde com carinho.
+            </p>
+            <div className="flex gap-2">
+              <input
+                readOnly
+                value={shareUrl}
+                onFocus={(e) => e.currentTarget.select()}
+                className="flex-1 rounded-2xl border-2 border-border bg-muted/30 px-4 py-3 text-sm font-mono truncate"
+                aria-label="Link exclusivo do cartão"
+              />
+              <button
+                type="button"
+                onClick={copyLink}
+                aria-label="Copiar link"
+                className="rounded-2xl border-2 border-border bg-card px-4 hover:bg-muted transition-colors"
+              >
+                {copiedLink ? "✅" : "📋"}
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={shareLink}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-primary/50 bg-card px-6 py-3 text-base font-bold text-foreground hover:bg-primary/10 transition-colors min-h-12"
+            >
+              📤 Compartilhar meu cartão
+            </button>
           </div>
 
           <button
