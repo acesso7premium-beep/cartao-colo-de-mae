@@ -16,55 +16,78 @@ const beneficios = [
 
 export function Hero({ onChoose, onAcceptCard }: Props) {
   return (
-    <main className="min-h-dvh bg-gradient-warm">
-      <section className="mx-auto max-w-4xl px-4 py-12 sm:py-20">
+    <main className="relative min-h-dvh bg-gradient-warm overflow-hidden">
+      {/* Floating bubbles — TEA Festival vibe */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none">
+        <span className="tea-bubble animate-float" style={{ width: 220, height: 220, top: "8%", left: "12%", background: "rgba(56,189,248,0.18)" }} />
+        <span className="tea-bubble animate-float" style={{ width: 340, height: 340, top: "30%", right: "-60px", background: "rgba(29,78,216,0.30)", animationDelay: "1.5s" }} />
+        <span className="tea-bubble animate-float" style={{ width: 180, height: 180, bottom: "10%", left: "20%", background: "rgba(42,157,143,0.22)", animationDelay: "3s" }} />
+        <span className="tea-bubble animate-float" style={{ width: 120, height: 120, top: "55%", left: "48%", background: "rgba(255,210,63,0.18)", animationDelay: "2s" }} />
+        <span className="tea-bubble animate-float" style={{ width: 260, height: 260, bottom: "-40px", right: "18%", background: "rgba(244,162,97,0.18)", animationDelay: "4s" }} />
+      </div>
+
+      <section className="relative mx-auto max-w-5xl px-4 py-14 sm:py-24">
         <div className="text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 mb-6 text-sm font-bold text-primary-foreground shadow-soft">
-            💙 Cartão Colo de Mãe
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-5 py-2 mb-8 text-sm font-bold shadow-soft"
+            style={{ background: "rgba(42,157,143,0.18)", color: "#FFD23F", border: "1px solid rgba(255,210,63,0.35)" }}
+          >
+            🧩 Abril Azul — Conscientização do Autismo
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Bem-vindo(a) ao{" "}
-            <span className="inline-flex flex-wrap justify-center gap-x-3">
-              <span style={{ color: "#E63946" }}>Cartão</span>
-              <span style={{ color: "#F4A261" }}>Colo</span>
-              <span style={{ color: "#2A9D8F" }}>de</span>
-              <span style={{ color: "#1D4ED8" }}>Mãe</span>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold mb-6 leading-[1.05] tracking-tight">
+            <span className="block text-white mb-2">Cartão</span>
+            <span className="inline-flex flex-wrap justify-center gap-x-4">
+              <span style={{ color: "var(--tea-red)" }}>Colo</span>
+              <span style={{ color: "var(--tea-orange)" }}>de</span>
+              <span style={{ color: "var(--tea-green)" }}>Mãe</span>
             </span>
           </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-muted-foreground/90 max-w-2xl mx-auto mb-2">
+            Acolhimento, inclusão e protagonismo para famílias atípicas.
+          </p>
+          <p className="text-lg sm:text-xl text-foreground/95 max-w-2xl mx-auto leading-relaxed mt-6">
             <strong className="text-foreground">Você não está sozinho(a).</strong>
             <br />
-            Este cadastro vai nos ajudar a entender melhor suas necessidades para buscarmos benefícios,
-            descontos, apoio, terapias, inclusão e acolhimento para sua família.
+            Este cadastro vai nos ajudar a buscar benefícios, descontos, apoio, terapias,
+            inclusão e acolhimento para sua família.
           </p>
-          <p className="mt-6 text-base text-muted-foreground max-w-2xl mx-auto">
-            Cada resposta é muito importante — mesmo que o questionário tenha várias perguntas,
-            elas podem fazer toda a diferença no futuro da sua família e de milhares de outras.
-          </p>
+
+          {/* Festival-style pill buttons row */}
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <span className="rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-soft" style={{ background: "var(--tea-green)" }}>
+              Associação Colo de Mãe
+            </span>
+            <span className="rounded-full px-5 py-2.5 text-sm font-bold shadow-soft" style={{ background: "var(--tea-yellow)", color: "#1a2a4a" }}>
+              Cadastro Oficial
+            </span>
+            <span className="rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-soft" style={{ background: "var(--tea-blue)" }}>
+              Movimento PcD
+            </span>
+          </div>
         </div>
 
         {/* Benefícios */}
-        <div className="mt-14">
-          <h2 className="text-center text-2xl font-bold mb-6">O que o cartão oferece</h2>
+        <div className="mt-16">
+          <h2 className="text-center text-2xl sm:text-3xl font-bold mb-8 text-white">O que o cartão oferece</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {beneficios.map((b) => (
               <div
                 key={b.label}
-                className="rounded-2xl bg-card border-2 border-border p-5 text-center shadow-soft hover:scale-[1.02] transition-transform animate-slide-up"
+                className="rounded-2xl bg-card/70 backdrop-blur border border-border p-5 text-center shadow-soft hover:scale-[1.03] hover:border-[color:var(--tea-yellow)] transition-all animate-slide-up"
               >
                 <div className="text-4xl mb-2" aria-hidden>{b.emoji}</div>
-                <div className="font-semibold text-sm sm:text-base">{b.label}</div>
+                <div className="font-semibold text-sm sm:text-base text-foreground">{b.label}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* CTA */}
-        <div className="mt-14 rounded-3xl bg-card border-2 border-border shadow-soft p-6 sm:p-10 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-snug">
+        <div className="mt-16 rounded-3xl bg-card/80 backdrop-blur border border-border shadow-soft p-6 sm:p-10 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-snug text-white">
             Você aceita receber gratuitamente
             <br />
-            o Cartão Colo de Mãe?
+            <span style={{ color: "var(--tea-yellow)" }}>o Cartão Colo de Mãe?</span>
           </h2>
           <p className="text-muted-foreground mb-8">
             Sua resposta não impede a continuação do cadastro. Você pode seguir mesmo se quiser pensar depois.
@@ -73,14 +96,15 @@ export function Hero({ onChoose, onAcceptCard }: Props) {
             <button
               type="button"
               onClick={() => (onAcceptCard ? onAcceptCard() : onChoose(true))}
-              className="rounded-2xl bg-gradient-primary px-6 py-5 text-lg font-bold text-primary-foreground shadow-soft hover:opacity-95 active:scale-[0.98] transition-all min-h-16"
+              className="rounded-full px-6 py-5 text-lg font-extrabold shadow-soft hover:scale-[1.02] active:scale-[0.98] transition-all min-h-16"
+              style={{ background: "var(--tea-yellow)", color: "#1a2a4a" }}
             >
               ✅ Sim, quero meu cartão
             </button>
             <button
               type="button"
               onClick={() => onChoose(false)}
-              className="rounded-2xl border-2 border-border bg-card px-6 py-5 text-lg font-bold text-foreground hover:bg-muted active:scale-[0.98] transition-all min-h-16"
+              className="rounded-full border-2 border-border bg-transparent px-6 py-5 text-lg font-bold text-foreground hover:bg-muted active:scale-[0.98] transition-all min-h-16"
             >
               ❌ Agora não
             </button>
