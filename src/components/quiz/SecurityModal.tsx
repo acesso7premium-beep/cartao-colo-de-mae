@@ -45,10 +45,11 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
   const [err, setErr] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const shareToken = useMemo(() => {
-    const rnd = Math.random().toString(36).slice(2, 8).toUpperCase();
-    return `${code}-${rnd}`;
-  }, [code]);
+  const [shareToken] = useState(() => {
+    const a = Math.random().toString(36).slice(2, 8);
+    const b = Math.random().toString(36).slice(2, 8);
+    return `${a}${b}`;
+  });
 
   const shareUrl = useMemo(() => {
     const origin =
