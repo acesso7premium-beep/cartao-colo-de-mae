@@ -43,6 +43,18 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
   const [saved, setSaved] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const shareToken = useMemo(() => {
+    const rnd = Math.random().toString(36).slice(2, 8).toUpperCase();
+    return `${code}-${rnd}`;
+  }, [code]);
+
+  const shareUrl = useMemo(() => {
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : "https://cartao-colo-de-mae.lovable.app";
+    return `${origin}/cartao/${shareToken}`;
+  }, [shareToken]);
 
   const fileContent = useMemo(
     () =>
@@ -51,8 +63,9 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
       `Palavra secreta: ${word}\n` +
       `Frase secreta: ${phrase}\n` +
       `Código único: ${code}\n\n` +
+      `Link exclusivo do seu cartão:\n${shareUrl}\n\n` +
       `⚠️ Guarde estas informações em local seguro. Elas servirão para recuperar e proteger o acesso ao seu Cartão Colo de Mãe.\n`,
-    [word, phrase, code]
+    [word, phrase, code, shareUrl]
   );
 
   if (!open) return null;
@@ -75,6 +88,29 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
     try {
       await navigator.clipboard.writeText(code);
     } catch {}
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch {}
+  };
+
+  const shareLink = async () => {
+    const shareData = {
+      title: "Meu Cartão Colo de Mãe",
+      text: "Esse é o meu link exclusivo do Cartão Colo de Mãe 💙",
+      url: shareUrl,
+    };
+    if (typeof navigator !== "undefined" && (navigator as any).share) {
+      try {
+        await (navigator as any).share(shareData);
+        return;
+      } catch {}
+    }
+    copyLink();
   };
 
   const submit = () => {
