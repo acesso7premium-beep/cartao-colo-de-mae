@@ -7,10 +7,11 @@ const STORAGE_KEY = "colo-de-mae-quiz";
 interface Props {
   wantsCard: boolean | null;
   contact?: { email: string; whatsapp: string } | null;
+  credentials?: { word: string; phrase: string; code: string } | null;
   onFinish: () => void;
 }
 
-export function Quiz({ wantsCard, contact, onFinish }: Props) {
+export function Quiz({ wantsCard, contact, credentials, onFinish }: Props) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export function Quiz({ wantsCard, contact, onFinish }: Props) {
       const submission = {
         wantsCard,
         contact: contact || null,
+        credentials: credentials || null,
         answers,
         submittedAt: new Date().toISOString(),
       };
