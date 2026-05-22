@@ -29,7 +29,7 @@ function Index() {
   const [showContact, setShowContact] = useState(false);
   const [contact, setContact] = useState<{ email: string; whatsapp: string } | null>(null);
   const [showSecurity, setShowSecurity] = useState(false);
-  const [credentials, setCredentials] = useState<{ word: string; phrase: string; code: string } | null>(null);
+  const [credentials, setCredentials] = useState<{ word: string; phrase: string; code: string; shareUrl: string } | null>(null);
 
   return (
     <>

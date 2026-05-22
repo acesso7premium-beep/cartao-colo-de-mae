@@ -7,7 +7,7 @@ const STORAGE_KEY = "colo-de-mae-quiz";
 interface Props {
   wantsCard: boolean | null;
   contact?: { email: string; whatsapp: string } | null;
-  credentials?: { word: string; phrase: string; code: string } | null;
+  credentials?: { word: string; phrase: string; code: string; shareUrl?: string } | null;
   onFinish: () => void;
 }
 
