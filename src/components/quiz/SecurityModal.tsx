@@ -236,6 +236,39 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
             </label>
           </div>
 
+          <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-base font-semibold">
+              🔗 Seu link exclusivo do Cartão
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Use este link para acessar e compartilhar seu Cartão Colo de Mãe. Ele é único e pessoal — guarde com carinho.
+            </p>
+            <div className="flex gap-2">
+              <input
+                readOnly
+                value={shareUrl}
+                onFocus={(e) => e.currentTarget.select()}
+                className="flex-1 rounded-2xl border-2 border-border bg-muted/30 px-4 py-3 text-sm font-mono truncate"
+                aria-label="Link exclusivo do cartão"
+              />
+              <button
+                type="button"
+                onClick={copyLink}
+                aria-label="Copiar link"
+                className="rounded-2xl border-2 border-border bg-card px-4 hover:bg-muted transition-colors"
+              >
+                {copiedLink ? "✅" : "📋"}
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={shareLink}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-primary/50 bg-card px-6 py-3 text-base font-bold text-foreground hover:bg-primary/10 transition-colors min-h-12"
+            >
+              📤 Compartilhar meu cartão
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={handleSave}
