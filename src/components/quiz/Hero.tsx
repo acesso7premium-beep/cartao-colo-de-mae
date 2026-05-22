@@ -29,7 +29,7 @@ export function Hero({ onChoose, onAcceptCard }: Props) {
       <section className="relative mx-auto max-w-5xl px-4 py-14 sm:py-24">
         <div className="text-center animate-fade-in">
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold mb-6 leading-[1.05] tracking-tight">
-            <span className="block text-white mb-2">Cartão</span>
+            <span className="block text-white mb-2">Cartão TEA/PcD</span>
             <span className="inline-flex flex-wrap justify-center gap-x-4">
               <span style={{ color: "var(--tea-red)" }}>Colo</span>
               <span style={{ color: "var(--tea-orange)" }}>de</span>
