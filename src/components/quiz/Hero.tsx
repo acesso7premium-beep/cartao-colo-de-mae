@@ -61,7 +61,7 @@ export function Hero({ onChoose, onAcceptCard }: Props) {
               Cadastro Oficial
             </span>
             <span className="rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-soft" style={{ background: "var(--tea-blue)" }}>
-              Movimento PcD
+              Movimento TEA/PcD
             </span>
           </div>
         </div>
