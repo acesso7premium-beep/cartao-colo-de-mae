@@ -1,26 +1,43 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Hero } from "@/components/quiz/Hero";
+import { Quiz } from "@/components/quiz/Quiz";
+import { ThankYou } from "@/components/quiz/ThankYou";
+import { FloatingHelp } from "@/components/quiz/FloatingHelp";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Cartão Colo de Mãe — Cadastro acolhedor PcD/TEA" },
+      {
+        name: "description",
+        content:
+          "Cadastro humanizado e acessível do Cartão Colo de Mãe para famílias PcD e TEA. Acolhimento, benefícios e apoio em poucos passos.",
+      },
+      { property: "og:title", content: "Cartão Colo de Mãe" },
+      { property: "og:description", content: "Acolhimento, benefícios e apoio para famílias PcD e TEA." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
-
 function Index() {
-  return <PlaceholderIndex />;
+  const [phase, setPhase] = useState<"hero" | "quiz" | "done">("hero");
+  const [wantsCard, setWantsCard] = useState<boolean | null>(null);
+
+  return (
+    <>
+      {phase === "hero" && (
+        <Hero
+          onChoose={(v) => {
+            setWantsCard(v);
+            setPhase("quiz");
+          }}
+        />
+      )}
+      {phase === "quiz" && <Quiz wantsCard={wantsCard} onFinish={() => setPhase("done")} />}
+      {phase === "done" && <ThankYou />}
+      <FloatingHelp />
+    </>
+  );
 }
