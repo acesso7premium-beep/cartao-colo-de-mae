@@ -1,5 +1,6 @@
 interface Props {
   onChoose: (wantsCard: boolean) => void;
+  onAcceptCard?: () => void;
 }
 
 const beneficios = [
@@ -13,12 +14,12 @@ const beneficios = [
   { emoji: "🧩", label: "Rede de acolhimento" },
 ];
 
-export function Hero({ onChoose }: Props) {
+export function Hero({ onChoose, onAcceptCard }: Props) {
   return (
     <main className="min-h-dvh bg-gradient-warm">
       <section className="mx-auto max-w-4xl px-4 py-12 sm:py-20">
         <div className="text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 rounded-full bg-card border-2 border-accent px-4 py-2 mb-6 text-sm font-semibold text-secondary-foreground">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 mb-6 text-sm font-bold text-primary-foreground shadow-soft">
             💙 Cartão Colo de Mãe
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight">
@@ -54,8 +55,10 @@ export function Hero({ onChoose }: Props) {
 
         {/* CTA */}
         <div className="mt-14 rounded-3xl bg-card border-2 border-border shadow-soft p-6 sm:p-10 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-            Você aceita receber gratuitamente o Cartão Colo de Mãe?
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-snug">
+            Você aceita receber gratuitamente
+            <br />
+            o Cartão Colo de Mãe?
           </h2>
           <p className="text-muted-foreground mb-8">
             Sua resposta não impede a continuação do cadastro. Você pode seguir mesmo se quiser pensar depois.
@@ -63,7 +66,7 @@ export function Hero({ onChoose }: Props) {
           <div className="grid sm:grid-cols-2 gap-4 max-w-xl mx-auto">
             <button
               type="button"
-              onClick={() => onChoose(true)}
+              onClick={() => (onAcceptCard ? onAcceptCard() : onChoose(true))}
               className="rounded-2xl bg-gradient-primary px-6 py-5 text-lg font-bold text-primary-foreground shadow-soft hover:opacity-95 active:scale-[0.98] transition-all min-h-16"
             >
               ✅ Sim, quero meu cartão
