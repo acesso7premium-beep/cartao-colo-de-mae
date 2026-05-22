@@ -23,7 +23,13 @@ export function Hero({ onChoose, onAcceptCard }: Props) {
             💙 Cartão Colo de Mãe
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Bem-vindo(a) ao <span className="text-primary">Cartão Colo de Mãe</span>
+            Bem-vindo(a) ao{" "}
+            <span className="inline-flex flex-wrap justify-center gap-x-3">
+              <span style={{ color: "#E63946" }}>Cartão</span>
+              <span style={{ color: "#F4A261" }}>Colo</span>
+              <span style={{ color: "#2A9D8F" }}>de</span>
+              <span style={{ color: "#1D4ED8" }}>Mãe</span>
+            </span>
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             <strong className="text-foreground">Você não está sozinho(a).</strong>
