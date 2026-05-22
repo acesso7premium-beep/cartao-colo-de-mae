@@ -28,12 +28,6 @@ export function Hero({ onChoose, onAcceptCard }: Props) {
 
       <section className="relative mx-auto max-w-5xl px-4 py-14 sm:py-24">
         <div className="text-center animate-fade-in">
-          <div
-            className="inline-flex items-center gap-2 rounded-full px-5 py-2 mb-8 text-sm font-bold shadow-soft"
-            style={{ background: "rgba(42,157,143,0.18)", color: "#FFD23F", border: "1px solid rgba(255,210,63,0.35)" }}
-          >
-            🧩 Abril Azul — Conscientização do Autismo
-          </div>
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold mb-6 leading-[1.05] tracking-tight">
             <span className="block text-white mb-2">Cartão</span>
             <span className="inline-flex flex-wrap justify-center gap-x-4">
