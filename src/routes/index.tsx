@@ -45,7 +45,7 @@ function Index() {
       {phase === "quiz" && (
         <Quiz wantsCard={wantsCard} contact={contact} credentials={credentials} onFinish={() => setPhase("done")} />
       )}
-      {phase === "done" && <ThankYou />}
+      {phase === "done" && <ThankYou shareUrl={credentials?.shareUrl} />}
       <FloatingHelp />
       <ContactModal
         open={showContact}
