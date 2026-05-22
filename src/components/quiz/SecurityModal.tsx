@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: { word: string; phrase: string; code: string }) => void;
+  onSubmit: (data: { word: string; phrase: string; code: string; shareUrl: string }) => void;
 }
 
 const WORDS = [
@@ -123,7 +123,7 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
       setErr("Marque que você anotou seu código em um lugar seguro.");
       return;
     }
-    onSubmit({ word, phrase, code });
+    onSubmit({ word, phrase, code, shareUrl });
   };
 
   return (
