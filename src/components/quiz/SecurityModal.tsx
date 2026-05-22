@@ -133,7 +133,7 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
       aria-labelledby="sec-title"
       className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 backdrop-blur-sm px-4 py-6 overflow-y-auto animate-fade-in"
     >
-      <div className="w-full max-w-xl rounded-3xl bg-card border-2 border-border shadow-soft p-6 sm:p-8 animate-slide-up my-auto">
+      <div className="w-full max-w-5xl rounded-3xl bg-card border-2 border-border shadow-soft p-6 sm:p-8 animate-slide-up my-auto">
         <div className="text-center mb-5">
           <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-accent text-2xl" aria-hidden>
             🛡️
@@ -151,7 +151,8 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
           <strong>salvar</strong> em local seguro.
         </p>
 
-        <div className="space-y-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6 items-start">
+          <div className="space-y-5">
           <div className="space-y-2">
             <label htmlFor="sec-word" className="flex items-center gap-2 text-base font-semibold">
               🔑 Palavra secreta
@@ -236,7 +237,9 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
               Já anotei meu código em um lugar seguro.
             </label>
           </div>
+          </div>
 
+          <div className="space-y-5">
           <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-4 space-y-3">
             <div className="flex items-center gap-2 text-base font-semibold">
               🔗 Seu link exclusivo do Cartão
@@ -287,6 +290,7 @@ export function SecurityModal({ open, onClose, onSubmit }: Props) {
               {err}
             </p>
           )}
+          </div>
         </div>
 
         <div className="mt-7 flex flex-col-reverse sm:flex-row gap-3 sm:justify-between">
