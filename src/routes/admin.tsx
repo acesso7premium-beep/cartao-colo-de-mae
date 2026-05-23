@@ -12,8 +12,109 @@ export const Route = createFileRoute("/admin")({
       { name: "description", content: "CRM Social — cadastros, filtros avançados, status, observações internas, relatórios institucionais e exportações premium." },
     ],
   }),
-  component: AdminPage,
+  component: AdminGate,
 });
+
+// =============================================================================
+// Auth gate (senha simples; pronto para migrar ao Cloud)
+// =============================================================================
+const AUTH_KEY = "colo-de-mae-admin-auth";
+const PWD_KEY = "colo-de-mae-admin-passwords";
+const DEFAULT_PWD = "colo1226";
+
+type StoredPwd = { id: string; label: string; hash: string; createdAt: string };
+
+async function sha256(text: string): Promise<string> {
+  const buf = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function loadPwds(): StoredPwd[] {
+  try { return JSON.parse(localStorage.getItem(PWD_KEY) || "[]"); } catch { return []; }
+}
+function savePwds(list: StoredPwd[]) {
+  localStorage.setItem(PWD_KEY, JSON.stringify(list));
+}
+
+function AdminGate() {
+  const [authed, setAuthed] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [pwd, setPwd] = useState("");
+  const [err, setErr] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
+
+  useEffect(() => {
+    try { setAuthed(sessionStorage.getItem(AUTH_KEY) === "1"); } catch {}
+    setChecked(true);
+  }, []);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr("");
+    const tryPwd = pwd.trim();
+    if (!tryPwd) { setErr("Digite a senha de acesso."); return; }
+    if (tryPwd === DEFAULT_PWD) {
+      sessionStorage.setItem(AUTH_KEY, "1");
+      setAuthed(true);
+      return;
+    }
+    const list = loadPwds();
+    if (list.length) {
+      const h = await sha256(tryPwd);
+      if (list.some((p) => p.hash === h)) {
+        sessionStorage.setItem(AUTH_KEY, "1");
+        setAuthed(true);
+        return;
+      }
+    }
+    setErr("Senha incorreta. Tente novamente.");
+  };
+
+  if (!checked) return null;
+  if (authed) return <AdminPage onLogout={() => { sessionStorage.removeItem(AUTH_KEY); setAuthed(false); setPwd(""); }} />;
+
+  return (
+    <main className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md rounded-3xl border-2 border-border bg-card shadow-2xl p-7 sm:p-9">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-bold text-primary-foreground mb-3">
+            🛡️ Acesso restrito
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold">Painel Geral de Cadastros</h1>
+          <p className="text-muted-foreground text-sm mt-2">Informe a senha de acesso para continuar.</p>
+        </div>
+        <form onSubmit={submit} className="space-y-4" autoComplete="off">
+          <div>
+            <label htmlFor="admin-pwd" className="block text-sm font-semibold mb-1.5">Senha</label>
+            <div className="relative">
+              <input
+                id="admin-pwd"
+                type={showPwd ? "text" : "password"}
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+                autoFocus
+                className="w-full rounded-2xl border-2 border-border bg-background px-4 py-3 pr-24 text-base focus:outline-none focus:ring-4 focus:ring-primary/30"
+                placeholder="Digite sua senha"
+                aria-describedby={err ? "admin-pwd-err" : undefined}
+              />
+              <button type="button" onClick={() => setShowPwd((v) => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/70">
+                {showPwd ? "Ocultar" : "Mostrar"}
+              </button>
+            </div>
+            {err && <p id="admin-pwd-err" className="mt-2 text-sm text-destructive font-medium">{err}</p>}
+          </div>
+          <button type="submit" className="w-full rounded-2xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90 transition">
+            Entrar
+          </button>
+          <Link to="/" className="block text-center text-sm text-muted-foreground hover:text-foreground">← Voltar ao início</Link>
+        </form>
+        <p className="text-[11px] text-muted-foreground text-center mt-6 leading-relaxed">
+          Autenticação local nesta sessão. Quando o Lovable Cloud for ativado, as senhas cadastradas migram para autenticação segura no servidor.
+        </p>
+      </div>
+    </main>
+  );
+}
 
 // =============================================================================
 // Types & storage
@@ -473,10 +574,42 @@ const FORMATS = [
 
 type Scope = "todos" | "filtrados" | "urgentes" | "cidade" | "periodo";
 
-function AdminPage() {
+function AdminPage({ onLogout }: { onLogout: () => void }) {
   const [items, setItems] = useState<Submission[]>([]);
   const [metas, setMetas] = useState<Record<string, Meta>>({});
   const [openIdx, setOpenIdx] = useState<string | null>(null);
+
+  // Passwords (futuras, prontas para sincronizar ao Cloud)
+  const [pwds, setPwds] = useState<StoredPwd[]>([]);
+  const [newPwdLabel, setNewPwdLabel] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [pwdMsg, setPwdMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [showPwdMgr, setShowPwdMgr] = useState(false);
+
+  useEffect(() => { setPwds(loadPwds()); }, []);
+
+  const addPwd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwdMsg(null);
+    const label = newPwdLabel.trim();
+    const pwd = newPwd.trim();
+    if (!label) { setPwdMsg({ kind: "err", text: "Informe um nome/identificação para a senha." }); return; }
+    if (pwd.length < 6) { setPwdMsg({ kind: "err", text: "A senha deve ter pelo menos 6 caracteres." }); return; }
+    const hash = await sha256(pwd);
+    if (pwds.some((p) => p.hash === hash)) { setPwdMsg({ kind: "err", text: "Essa senha já está cadastrada." }); return; }
+    const next: StoredPwd[] = [...pwds, { id: crypto.randomUUID(), label, hash, createdAt: new Date().toISOString() }];
+    savePwds(next);
+    setPwds(next);
+    setNewPwdLabel("");
+    setNewPwd("");
+    setPwdMsg({ kind: "ok", text: "Senha cadastrada com sucesso." });
+  };
+  const removePwd = (id: string) => {
+    const next = pwds.filter((p) => p.id !== id);
+    savePwds(next);
+    setPwds(next);
+    setPwdMsg({ kind: "ok", text: "Senha removida." });
+  };
 
   // Filters
   const [q, setQ] = useState("");
@@ -628,10 +761,69 @@ function AdminPage() {
           </div>
           <div className="flex gap-2 flex-wrap">
             <button onClick={() => window.print()} className="rounded-2xl border-2 border-border bg-card px-5 py-3 font-semibold hover:bg-muted transition-colors">🖨️ Imprimir</button>
+            <button onClick={() => setShowPwdMgr((v) => !v)} className="rounded-2xl border-2 border-border bg-card px-5 py-3 font-semibold hover:bg-muted transition-colors">🔐 Senhas</button>
             <Link to="/respostas" className="rounded-2xl border-2 border-border bg-card px-5 py-3 font-semibold hover:bg-muted transition-colors">📊 Respostas</Link>
             <Link to="/" className="rounded-2xl border-2 border-border bg-card px-5 py-3 font-semibold hover:bg-muted transition-colors">← Cadastro</Link>
+            <button onClick={onLogout} className="rounded-2xl border-2 border-destructive/40 bg-destructive/10 text-destructive px-5 py-3 font-semibold hover:bg-destructive/20 transition-colors">⎋ Sair</button>
           </div>
         </header>
+
+        {/* === GESTÃO DE SENHAS === */}
+        {showPwdMgr && (
+          <section className="mb-8 rounded-3xl border-2 border-border bg-card p-5 sm:p-7 no-print">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-xl font-bold">🔐 Senhas de acesso</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Cadastre senhas adicionais para outros membros da equipe. Armazenadas localmente com hash SHA-256 — serão migradas para autenticação no Lovable Cloud quando ele for ativado.
+                </p>
+              </div>
+              <button onClick={() => setShowPwdMgr(false)} className="text-sm font-semibold text-muted-foreground hover:text-foreground">Fechar ✕</button>
+            </div>
+
+            <form onSubmit={addPwd} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 mb-4">
+              <input
+                type="text"
+                value={newPwdLabel}
+                onChange={(e) => setNewPwdLabel(e.target.value)}
+                placeholder="Nome / responsável (ex: Maria — coordenação)"
+                className="rounded-2xl border-2 border-border bg-background px-4 py-3 focus:outline-none focus:ring-4 focus:ring-primary/30"
+                maxLength={80}
+              />
+              <input
+                type="password"
+                value={newPwd}
+                onChange={(e) => setNewPwd(e.target.value)}
+                placeholder="Nova senha (mín. 6 caracteres)"
+                className="rounded-2xl border-2 border-border bg-background px-4 py-3 focus:outline-none focus:ring-4 focus:ring-primary/30"
+                autoComplete="new-password"
+              />
+              <button type="submit" className="rounded-2xl bg-primary text-primary-foreground px-5 py-3 font-bold hover:opacity-90">+ Adicionar</button>
+            </form>
+            {pwdMsg && (
+              <p className={`text-sm font-medium mb-3 ${pwdMsg.kind === "ok" ? "text-primary" : "text-destructive"}`}>{pwdMsg.text}</p>
+            )}
+
+            <div className="rounded-2xl border border-border overflow-hidden">
+              <div className="grid grid-cols-[1fr_auto_auto] gap-2 px-4 py-2 bg-muted text-xs font-semibold uppercase tracking-wide">
+                <span>Identificação</span>
+                <span>Criada em</span>
+                <span className="text-right">Ação</span>
+              </div>
+              {pwds.length === 0 ? (
+                <div className="px-4 py-4 text-sm text-muted-foreground">
+                  Nenhuma senha adicional cadastrada. A senha padrão de acesso continua ativa.
+                </div>
+              ) : pwds.map((p) => (
+                <div key={p.id} className="grid grid-cols-[1fr_auto_auto] gap-2 px-4 py-2.5 border-t border-border items-center text-sm">
+                  <span className="font-medium truncate">{p.label}</span>
+                  <span className="text-muted-foreground text-xs">{new Date(p.createdAt).toLocaleDateString("pt-BR")}</span>
+                  <button onClick={() => removePwd(p.id)} className="text-xs font-semibold text-destructive hover:underline">Remover</button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* PRINT HEADER */}
         <div className="hidden print:block mb-6 border-b-2 border-foreground pb-4">
