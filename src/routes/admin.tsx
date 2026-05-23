@@ -12,8 +12,109 @@ export const Route = createFileRoute("/admin")({
       { name: "description", content: "CRM Social — cadastros, filtros avançados, status, observações internas, relatórios institucionais e exportações premium." },
     ],
   }),
-  component: AdminPage,
+  component: AdminGate,
 });
+
+// =============================================================================
+// Auth gate (senha simples; pronto para migrar ao Cloud)
+// =============================================================================
+const AUTH_KEY = "colo-de-mae-admin-auth";
+const PWD_KEY = "colo-de-mae-admin-passwords";
+const DEFAULT_PWD = "colo1226";
+
+type StoredPwd = { id: string; label: string; hash: string; createdAt: string };
+
+async function sha256(text: string): Promise<string> {
+  const buf = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function loadPwds(): StoredPwd[] {
+  try { return JSON.parse(localStorage.getItem(PWD_KEY) || "[]"); } catch { return []; }
+}
+function savePwds(list: StoredPwd[]) {
+  localStorage.setItem(PWD_KEY, JSON.stringify(list));
+}
+
+function AdminGate() {
+  const [authed, setAuthed] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [pwd, setPwd] = useState("");
+  const [err, setErr] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
+
+  useEffect(() => {
+    try { setAuthed(sessionStorage.getItem(AUTH_KEY) === "1"); } catch {}
+    setChecked(true);
+  }, []);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr("");
+    const tryPwd = pwd.trim();
+    if (!tryPwd) { setErr("Digite a senha de acesso."); return; }
+    if (tryPwd === DEFAULT_PWD) {
+      sessionStorage.setItem(AUTH_KEY, "1");
+      setAuthed(true);
+      return;
+    }
+    const list = loadPwds();
+    if (list.length) {
+      const h = await sha256(tryPwd);
+      if (list.some((p) => p.hash === h)) {
+        sessionStorage.setItem(AUTH_KEY, "1");
+        setAuthed(true);
+        return;
+      }
+    }
+    setErr("Senha incorreta. Tente novamente.");
+  };
+
+  if (!checked) return null;
+  if (authed) return <AdminPage onLogout={() => { sessionStorage.removeItem(AUTH_KEY); setAuthed(false); setPwd(""); }} />;
+
+  return (
+    <main className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md rounded-3xl border-2 border-border bg-card shadow-2xl p-7 sm:p-9">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-bold text-primary-foreground mb-3">
+            🛡️ Acesso restrito
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold">Painel Geral de Cadastros</h1>
+          <p className="text-muted-foreground text-sm mt-2">Informe a senha de acesso para continuar.</p>
+        </div>
+        <form onSubmit={submit} className="space-y-4" autoComplete="off">
+          <div>
+            <label htmlFor="admin-pwd" className="block text-sm font-semibold mb-1.5">Senha</label>
+            <div className="relative">
+              <input
+                id="admin-pwd"
+                type={showPwd ? "text" : "password"}
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+                autoFocus
+                className="w-full rounded-2xl border-2 border-border bg-background px-4 py-3 pr-24 text-base focus:outline-none focus:ring-4 focus:ring-primary/30"
+                placeholder="Digite sua senha"
+                aria-describedby={err ? "admin-pwd-err" : undefined}
+              />
+              <button type="button" onClick={() => setShowPwd((v) => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/70">
+                {showPwd ? "Ocultar" : "Mostrar"}
+              </button>
+            </div>
+            {err && <p id="admin-pwd-err" className="mt-2 text-sm text-destructive font-medium">{err}</p>}
+          </div>
+          <button type="submit" className="w-full rounded-2xl bg-primary text-primary-foreground py-3 font-bold hover:opacity-90 transition">
+            Entrar
+          </button>
+          <Link to="/" className="block text-center text-sm text-muted-foreground hover:text-foreground">← Voltar ao início</Link>
+        </form>
+        <p className="text-[11px] text-muted-foreground text-center mt-6 leading-relaxed">
+          Autenticação local nesta sessão. Quando o Lovable Cloud for ativado, as senhas cadastradas migram para autenticação segura no servidor.
+        </p>
+      </div>
+    </main>
+  );
+}
 
 // =============================================================================
 // Types & storage
