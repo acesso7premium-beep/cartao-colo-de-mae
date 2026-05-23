@@ -574,10 +574,42 @@ const FORMATS = [
 
 type Scope = "todos" | "filtrados" | "urgentes" | "cidade" | "periodo";
 
-function AdminPage() {
+function AdminPage({ onLogout }: { onLogout: () => void }) {
   const [items, setItems] = useState<Submission[]>([]);
   const [metas, setMetas] = useState<Record<string, Meta>>({});
   const [openIdx, setOpenIdx] = useState<string | null>(null);
+
+  // Passwords (futuras, prontas para sincronizar ao Cloud)
+  const [pwds, setPwds] = useState<StoredPwd[]>([]);
+  const [newPwdLabel, setNewPwdLabel] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [pwdMsg, setPwdMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [showPwdMgr, setShowPwdMgr] = useState(false);
+
+  useEffect(() => { setPwds(loadPwds()); }, []);
+
+  const addPwd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwdMsg(null);
+    const label = newPwdLabel.trim();
+    const pwd = newPwd.trim();
+    if (!label) { setPwdMsg({ kind: "err", text: "Informe um nome/identificação para a senha." }); return; }
+    if (pwd.length < 6) { setPwdMsg({ kind: "err", text: "A senha deve ter pelo menos 6 caracteres." }); return; }
+    const hash = await sha256(pwd);
+    if (pwds.some((p) => p.hash === hash)) { setPwdMsg({ kind: "err", text: "Essa senha já está cadastrada." }); return; }
+    const next: StoredPwd[] = [...pwds, { id: crypto.randomUUID(), label, hash, createdAt: new Date().toISOString() }];
+    savePwds(next);
+    setPwds(next);
+    setNewPwdLabel("");
+    setNewPwd("");
+    setPwdMsg({ kind: "ok", text: "Senha cadastrada com sucesso." });
+  };
+  const removePwd = (id: string) => {
+    const next = pwds.filter((p) => p.id !== id);
+    savePwds(next);
+    setPwds(next);
+    setPwdMsg({ kind: "ok", text: "Senha removida." });
+  };
 
   // Filters
   const [q, setQ] = useState("");
