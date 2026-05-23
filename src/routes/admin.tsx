@@ -761,10 +761,69 @@ function AdminPage({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="flex gap-2 flex-wrap">
             <button onClick={() => window.print()} className="rounded-2xl border-2 border-border bg-card px-5 py-3 font-semibold hover:bg-muted transition-colors">🖨️ Imprimir</button>
+            <button onClick={() => setShowPwdMgr((v) => !v)} className="rounded-2xl border-2 border-border bg-card px-5 py-3 font-semibold hover:bg-muted transition-colors">🔐 Senhas</button>
             <Link to="/respostas" className="rounded-2xl border-2 border-border bg-card px-5 py-3 font-semibold hover:bg-muted transition-colors">📊 Respostas</Link>
             <Link to="/" className="rounded-2xl border-2 border-border bg-card px-5 py-3 font-semibold hover:bg-muted transition-colors">← Cadastro</Link>
+            <button onClick={onLogout} className="rounded-2xl border-2 border-destructive/40 bg-destructive/10 text-destructive px-5 py-3 font-semibold hover:bg-destructive/20 transition-colors">⎋ Sair</button>
           </div>
         </header>
+
+        {/* === GESTÃO DE SENHAS === */}
+        {showPwdMgr && (
+          <section className="mb-8 rounded-3xl border-2 border-border bg-card p-5 sm:p-7 no-print">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-xl font-bold">🔐 Senhas de acesso</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Cadastre senhas adicionais para outros membros da equipe. Armazenadas localmente com hash SHA-256 — serão migradas para autenticação no Lovable Cloud quando ele for ativado.
+                </p>
+              </div>
+              <button onClick={() => setShowPwdMgr(false)} className="text-sm font-semibold text-muted-foreground hover:text-foreground">Fechar ✕</button>
+            </div>
+
+            <form onSubmit={addPwd} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 mb-4">
+              <input
+                type="text"
+                value={newPwdLabel}
+                onChange={(e) => setNewPwdLabel(e.target.value)}
+                placeholder="Nome / responsável (ex: Maria — coordenação)"
+                className="rounded-2xl border-2 border-border bg-background px-4 py-3 focus:outline-none focus:ring-4 focus:ring-primary/30"
+                maxLength={80}
+              />
+              <input
+                type="password"
+                value={newPwd}
+                onChange={(e) => setNewPwd(e.target.value)}
+                placeholder="Nova senha (mín. 6 caracteres)"
+                className="rounded-2xl border-2 border-border bg-background px-4 py-3 focus:outline-none focus:ring-4 focus:ring-primary/30"
+                autoComplete="new-password"
+              />
+              <button type="submit" className="rounded-2xl bg-primary text-primary-foreground px-5 py-3 font-bold hover:opacity-90">+ Adicionar</button>
+            </form>
+            {pwdMsg && (
+              <p className={`text-sm font-medium mb-3 ${pwdMsg.kind === "ok" ? "text-primary" : "text-destructive"}`}>{pwdMsg.text}</p>
+            )}
+
+            <div className="rounded-2xl border border-border overflow-hidden">
+              <div className="grid grid-cols-[1fr_auto_auto] gap-2 px-4 py-2 bg-muted text-xs font-semibold uppercase tracking-wide">
+                <span>Identificação</span>
+                <span>Criada em</span>
+                <span className="text-right">Ação</span>
+              </div>
+              {pwds.length === 0 ? (
+                <div className="px-4 py-4 text-sm text-muted-foreground">
+                  Nenhuma senha adicional cadastrada. A senha padrão de acesso continua ativa.
+                </div>
+              ) : pwds.map((p) => (
+                <div key={p.id} className="grid grid-cols-[1fr_auto_auto] gap-2 px-4 py-2.5 border-t border-border items-center text-sm">
+                  <span className="font-medium truncate">{p.label}</span>
+                  <span className="text-muted-foreground text-xs">{new Date(p.createdAt).toLocaleDateString("pt-BR")}</span>
+                  <button onClick={() => removePwd(p.id)} className="text-xs font-semibold text-destructive hover:underline">Remover</button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* PRINT HEADER */}
         <div className="hidden print:block mb-6 border-b-2 border-foreground pb-4">
